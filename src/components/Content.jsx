@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { API } from "../api";
 import Nav from "./Nav";
 import Photos from "./Photos";
+import Search from "./Search";
 
 function Content() {
   const [query, setQuery] = useState("cars");
@@ -32,30 +33,28 @@ function Content() {
     return () => clearTimeout(timerType);
   }, [query]);
 
-  const searchHandler = (e) => {
-    if (e.keyCode === 13) {
-      fetchPhotos();
-    }
-  };
+  const searchHandler = useCallback(
+    (e) => {
+      if (e.keyCode === 13) {
+        fetchPhotos();
+      }
+    },
+    [query]
+  );
 
   const categoriesHanlder = (e) => {
     const newQuery = e.target.textContent;
     setQuery(newQuery);
   };
 
+  const changeHandler = (e) => {
+    setQuery(e.target.value);
+  };
+
   return (
     <div data-testid="content-1">
       <Nav onLoad={categoriesHanlder} />
-      <div className="search">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={searchHandler}
-        />
-      </div>
-
+      <Search value={query} onType={changeHandler} onEnter={searchHandler} />
       {loading ? <h1>Loading...</h1> : <Photos data={data} />}
     </div>
   );
